@@ -201,7 +201,7 @@ async function renderHome() {
   const page = document.querySelector("#vPage");
   page.innerHTML = `<h2 class="v-title">Discover</h2>
     ${videos.length ? videos.map(v => videoCard(v)).join("") :
-      `<div class="v-empty">এখনো ভিডিও নেই। Upload করে শুরু করো!</div>`};
+      `<div class="v-empty">এখনো ভিডিও নেই। Upload করে শুরু করো!</div>`;
   await updateCardCounts();
 }
 
