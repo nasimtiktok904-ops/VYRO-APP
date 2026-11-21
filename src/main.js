@@ -334,16 +334,24 @@ async function showAuth() {
     <div class="v-auth">
       <h1>VYRO</h1>
       <p class="v-muted" style="text-align:center">Short Video Community</p>
+
       <div class="v-card">
         <h2>Login / Signup</h2>
-        <input class="v-input" id="email" type="email" placeholder="Email">
-        <input class="v-input" id="password" type="password" placeholder="Password">
+
+        <input class="v-input" id="email"
+          type="email" placeholder="Email">
+
+        <input class="v-input" id="password"
+          type="password" placeholder="Password">
+
         <button class="v-btn v-full" id="login">Login</button>
         <button class="v-btn v-full" id="signup">Create Account</button>
+
         <button id="reset" class="v-full"
           style="margin-top:12px;background:none;color:#e9c45b;border:0">
           Forgot Password?
         </button>
+
         <p id="authMsg" class="v-muted"></p>
       </div>
     </div>
@@ -352,45 +360,117 @@ async function showAuth() {
   const email = document.querySelector("#email");
   const password = document.querySelector("#password");
   const out = document.querySelector("#authMsg");
+  const loginBtn = document.querySelector("#login");
+  const signupBtn = document.querySelector("#signup");
 
-  document.querySelector("#login").onclick = async () => {
+  loginBtn.onclick = async () => {
+    const e = email.value.trim();
+    const p = password.value;
+
+    if (!e || !p) {
+      out.textContent = "Email ও Password লিখো।";
+      return;
+    }
+
+    loginBtn.disabled = true;
     out.textContent = "Login হচ্ছে...";
-    const { data, error } = await supabase.auth.signInWithPassword({
-      email:email.value.trim(),
-      password:password.value
-    });
-    if (error) return out.textContent = error.message;
-    currentUser = data.user;
-    await home();
-  };
 
-  document.querySelector("#signup").onclick = async () => {
-    if (!email.value.trim()) return out.textContent = "Email লিখো।";
-    if (password.value.length < 6)
-      return out.textContent = "Password কমপক্ষে ৬ অক্ষরের হতে হবে।";
+    try {
+      const { data, error } =
+        await supabase.auth.signInWithPassword({
+          email: e,
+          password: p
+        });
 
-    const { data, error } = await supabase.auth.signUp({
-      email:email.value.trim(),
-      password:password.value
-    });
-    if (error) return out.textContent = error.message;
+      if (error) throw error;
 
-    if (data.session) {
       currentUser = data.user;
       await home();
-    } else {
-      out.textContent = "Account তৈরি হয়েছে। Email confirmation লাগলে Email যাচাই করো।";
+
+    } catch (err) {
+      out.textContent = err.message;
+    } finally {
+      loginBtn.disabled = false;
+    }
+  };
+
+  signupBtn.onclick = async () => {
+    const e = email.value.trim();
+    const p = password.value;
+
+    if (!e) {
+      out.textContent = "Email লিখো।";
+      return;
+    }
+
+    if (p.length < 6) {
+      out.textContent = "Password কমপক্ষে ৬ অক্ষরের হতে হবে।";
+      return;
+    }
+
+    signupBtn.disabled = true;
+    out.textContent = "Account তৈরি হচ্ছে...";
+
+    try {
+      const { data, error } =
+        await supabase.auth.signUp({
+          email: e,
+          password: p
+        });
+
+      if (error) throw error;
+
+      if (data.session && data.user) {
+        currentUser = data.user;
+        await home();
+        return;
+      }
+
+      // Session না থাকলে সরাসরি Login চেষ্টা করবে
+      const { data: loginData, error: loginError } =
+        await supabase.auth.signInWithPassword({
+          email: e,
+          password: p
+        });
+
+      if (loginError) {
+        out.textContent =
+          "Account তৈরি হয়েছে, কিন্তু Login হয়নি। Supabase-এ Email Confirmation বন্ধ আছে কি না দেখো।";
+        return;
+      }
+
+      currentUser = loginData.user;
+      await home();
+
+    } catch (err) {
+      out.textContent = err.message;
+    } finally {
+      signupBtn.disabled = false;
     }
   };
 
   document.querySelector("#reset").onclick = async () => {
-    if (!email.value.trim()) return out.textContent = "আগে Email লিখো।";
-    const { error } = await supabase.auth.resetPasswordForEmail(email.value.trim());
-    out.textContent = error ? error.message : "Reset email পাঠানো হয়েছে।";
+    const e = email.value.trim();
+
+    if (!e) {
+      out.textContent = "আগে Email লিখো।";
+      return;
+    }
+
+    out.textContent = "Reset email পাঠানো হচ্ছে...";
+
+    const { error } =
+      await supabase.auth.resetPasswordForEmail(e);
+
+    out.textContent = error
+      ? error.message
+      : "Password reset email পাঠানো হয়েছে।";
   };
 }
 
 /* FEED */
+
+async function loadFeed
 
 async function loadFeed() {
   const { data, error } = await supabase.from("videos")
