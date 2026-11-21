@@ -470,8 +470,6 @@ async function showAuth() {
 
 /* FEED */
 
-async function loadFeed
-
 async function loadFeed() {
   const { data, error } = await supabase.from("videos")
     .select("id,user_id,title,video_url,thumbnail_url,status,views,created_at")
