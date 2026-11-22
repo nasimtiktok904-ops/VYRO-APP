@@ -7,6 +7,7 @@ let currentUser = null;
 let activeTab = "home";
 let videos = [];
 let activeChat = null;
+let activeInboxView = "chats";
 let activeProfileId = null;
 let cameraStream = null;
 let recorder = null;
