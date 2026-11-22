@@ -647,11 +647,24 @@ async function renderHome() {
 
   page.innerHTML = `
     <h2 class="v-title">VYRO</h2>
+
+    <div class="v-search-box">
+      <input
+        type="text"
+        id="userSearchInput"
+        placeholder="🔍 নাম, Username বা ভিডিও Caption খুঁজুন..."
+      >
+      <button data-action="search-users">Search</button>
+    </div>
+
+    <div id="userSearchResults"></div>
+
     <div class="v-stories" id="storyRail">
       <button class="v-story" data-action="add-story">
         <div class="v-story-add">＋</div>
         Add Story
       </button>
+
       ${stories.map(s => `
         <button class="v-story" data-action="view-story" data-story="${esc(s.id)}">
           <div class="v-story-ring">
@@ -661,6 +674,7 @@ async function renderHome() {
         </button>
       `).join("")}
     </div>
+
     <div class="v-feed" id="vFeed">
       ${
         videos.length
