@@ -1584,52 +1584,7 @@ function bindGlobal() {
     if (!el) return;
 
     const action = el.dataset.action;
-    if (action === "search-users") {
-      const input = document.querySelector("#userSearchInput");
-      const results = document.querySelector("#userSearchResults");
-      const q = input?.value.trim();
-
-      if (!q) {
-        results.innerHTML = "কিছু লিখে সার্চ করো।";
-        return;
-      }
-
-      results.textContent = "খোঁজা হচ্ছে...";
-
-      const safeQ = q.replace(/[,%()]/g, " ");
-
-      const { data: users, error: userError } = await supabase
-        .from("profiles")
-        .select("id,username,full_name,avatar_url")
-        .or(`username.ilike.%${safeQ}%,full_name.ilike.%${safeQ}%`)
-        .limit(20);
-
-      const { data: foundVideos, error: videoError } = await supabase
-        .from("videos")
-        .select("*")
-        .ilike("title", `%${safeQ}%`)
-        .limit(20);
-
-      if (userError || videoError) {
-        results.textContent = "Search Error: " +
-          (userError?.message || videoError?.message);
-        return;
-      }
-
-      results.innerHTML = `
-        <h3>Users</h3>
-        ${(users || []).map(u => `
-          <button class="v-story" data-action="open-profile" data-user="${esc(u.id)}">
-            <img src="${esc(u.avatar_url || "")}" width="40">
-            ${esc(u.full_name || u.username)} @${esc(u.username)}
-          </button>
-        `).join("") || "কোনো User পাওয়া যায়নি।"}
-
-        <h3>Videos</h3>
-        ${(foundVideos || []).map(v => videoCard(v)).join("") || "কোনো Video পাওয়া যায়নি।"}
-      `;
-    }
-
+    
     if (action === "like") await toggleLike(el.dataset.id);
     if (action === "comment") await showComments(el.dataset.id);
     if (action === "send-comment") await addComment(el.dataset.id);
